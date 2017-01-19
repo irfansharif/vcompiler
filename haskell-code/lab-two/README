@@ -1,0 +1,13 @@
+For REGEX/Recognizer tests (*wave files in wave/)
+  ghc --make -o regex Regex.hs
+  rm *.hi *.o
+  mv regex wave/
+  cd regex wave/
+  ./regex (ls *wave | tr "\n" " ") 
+  rm regex
+
+For AST construction
+  cabal run
+
+The REPL doesn't take in multilined input, for multiple lines test with
+`readProgram` in Parser.hs
