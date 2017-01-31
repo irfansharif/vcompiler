@@ -11,6 +11,7 @@ Import the necessary libraries:
 
 > import Pretty
 > import Syntax
+> import Simplify
 
 Having all the data structures (check Syntax.hs) we can go on with writing the
 code to do actual parsing. First of all we create the language definition using
