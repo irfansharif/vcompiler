@@ -2,6 +2,7 @@ module Main where
 
 import Parser
 import Pretty
+import Simplify
 
 import Control.Monad.Trans (liftIO)
 import System.Environment
@@ -13,7 +14,7 @@ process line = do
     let res = Parsec.parse parseProgram "(F)" line
     case res of
       Left err -> putStrLn ("Err: " ++ show err)
-      Right val -> putStrLn (prettyprint val)
+      Right val -> putStrLn (prettyprint (simplify val))
 
 main :: IO ()
 main = Console.runInputT Console.defaultSettings loop
