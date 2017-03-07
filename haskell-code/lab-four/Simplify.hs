@@ -100,8 +100,3 @@ fcontains v (FExpr (Disjunction fs)) = any (\t -> case t of
                                                     _ -> False
                                                   ) fs
 fcontains _ _ = False
-
-
-
--- Seq [Assign (Var "x") (Disjunction [Conjunction [FExpr (Disjunction [Conjunction [FVar (Var "a")],Conjunction[FVar (Var "a"),FVar (Var "b")],Conjunction [FVar (Var "b")]]),FExpr (Disjunction [Conjunction [FVar (Var "b")],Conjunction [FVar (Var "c")],Conjunction [FVar (Var "a")]])],Conjunction [FVar (Var "a"),FVar (Var "a")]])]
--- Conjunction [FExpr (Disjunction [Conjunction [FVar (Var "a")], Conjunction[FVar (Var "a"), FVar (Var "b")],Conjunction [FVar (Var "b")]]),FExpr (Disjunction [Conjunction [FVar (Var "b")],Conjunction [FVar (Var "c")],Conjunction [FVar (Var "a")]])]

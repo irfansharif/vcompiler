@@ -22,4 +22,3 @@ loop paths = do
 regexmatch filename = do
   contents <- readFile filename
   return ((contents =~ regex :: String) == contents)
-  -- return ((contents =~ regex :: String) == (filter (/= ' ') contents))
