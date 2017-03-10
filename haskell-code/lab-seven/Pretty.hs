@@ -2,6 +2,7 @@ module Pretty (
     prettyprint
 ) where
 
+import Isomorphism
 import Syntax
 
 import Text.PrettyPrint (Doc, (<>), (<+>))

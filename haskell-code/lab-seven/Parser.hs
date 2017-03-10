@@ -8,8 +8,8 @@ import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as Token
 
 import Pretty
+import Isomorphism
 import Syntax
-import Simplify
 
 languageDef =
   emptyDef { Token.commentStart    = ""

@@ -12,10 +12,10 @@
 -- Our implementation uses Data.Map and Data.IntMap to record
 -- both parts of the association.
 
-module CSE_BiMap (
+module BiMap (
               BiMap, empty,
-              lookup_key,
-              lookup_val,
+              lookupKey,
+              lookupVal,
               insert,
               size,
              )
@@ -26,18 +26,19 @@ import qualified Data.IntMap as IM
 
 data BiMap a = BiMap (M.Map a Int) (IM.IntMap a)
 
+instance Show a => Show (BiMap a) where
+  show (BiMap _ m) =  "BiMap" ++ show (IM.toList m)
+
 -- Find a key for a value
-lookup_key :: Ord a => a -> BiMap a -> Maybe Int
-lookup_key v (BiMap m _) = M.lookup v m
+lookupKey :: Ord a => a -> BiMap a -> Maybe Int
+lookupKey v (BiMap m _) = M.lookup v m
 
 -- Find a value for a key
-lookup_val :: Int -> BiMap a -> a
-lookup_val k (BiMap _ m) = m IM.! k
+lookupVal :: Int -> BiMap a -> a
+lookupVal k (BiMap _ m) = m IM.! k
 
 -- Insert the value and return the corresponding key
 -- and the new map
--- Alas, Map interface does not have an operation to insert and find the index
--- at the same time (although such an operation is easily possible)
 insert :: Ord a => a -> BiMap a -> (Int, BiMap a)
 insert v (BiMap m im) = (k, BiMap m' im')
  where m'  = M.insert v k m
@@ -45,10 +46,7 @@ insert v (BiMap m im) = (k, BiMap m' im')
        k   = IM.size im
 
 empty :: BiMap a
-empty = BiMap (M.empty) (IM.empty)
-
-instance Show a => Show (BiMap a) where
-    show (BiMap _ m) =  "BiMap" ++ show (IM.toList m)
+empty = BiMap M.empty IM.empty
 
 size :: BiMap a -> Int
 size (BiMap _ m) = IM.size m
