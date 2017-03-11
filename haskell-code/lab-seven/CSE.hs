@@ -1,17 +1,12 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
-module CSE (Exp(..),
-            -- ExpI(..),
-            -- N(..), 
-            NodeId, DAG(..),
-            -- run_expN,
-            mul,
-           ) where
+module CSE where
 
 import Control.Monad.State
 import BiMap
 import Syntax
-import qualified CSE_ExpI as ExpI (Exp(..))
+import Ord
+import Eq
 
 class Expression e where
   factor :: Factor -> e Factor
@@ -25,31 +20,17 @@ class Exp repr where
    variable :: String -> repr Int
    add      :: repr Int -> repr Int -> repr Int
 
-mul :: Exp repr => Int -> repr Int -> repr Int
-mul 0 _ = constant 0
-mul 1 x = x
-mul n x | n `mod` 2 == 0 = mul (n `div` 2) (add x x)
-mul n x = add x (mul (n-1) x)
-
-exp_mul8 = mul 8 (variable "i1")
-
 -- * Representing a DAG
 -- a collection of Nodes identified by NodeIds,
 
 type NodeId = Int
 
--- data Node = NConst Int
---           | NVar   String
---           | NAdd   NodeId NodeId
---             deriving (Eq, Ord, Show)
-
 data Node = NConst Const
           | NVar   Var
-          | NFactor Factor
-          -- | NTerm Term
-          | NTerm NodeId NodeId
-          -- | NExpr Expr
-          | NExpr NodeId NodeId
+          | NFactor NodeId
+          | NNFactor NodeId
+          | NTerm [NodeId]
+          | NExpr [NodeId]
             deriving (Eq, Ord, Show)
 
 newtype DAG = DAG (BiMap Node) deriving Show
@@ -74,38 +55,27 @@ hashcons e = do
 newtype N t = N{unN :: State DAG NodeId}
 
 instance Expression N where
-  factor x = N(hashcons $ NFactor x)
-  const x  = N(hashcons $ NConst x)
-  term (Conjunction x)= N(do
-                          xh <- unN (factor (x !! 0))
-                          xh' <- unN (factor (x !! 1))
-                          hashcons $ NTerm xh xh')
-  expr (Disjunction x)= N(do
-                          xh <- unN (term (x !! 0))
-                          xh' <- unN (term (x !! 1))
-                          hashcons $ NExpr xh xh')
+  term (Conjunction x)= N(mapM (\x' -> unN (factor x')) x >>= \res ->
+                          hashcons $ NTerm res)
+  expr (Disjunction x)= N(mapM (\x' -> unN (term x')) x >>= \res ->
+                          hashcons $ NExpr res)
+  factor (FVar v) = N(unN (var v) >>= \vh ->
+                      hashcons $ NFactor vh)
+  factor (FConst c) = N(unN (CSE.const c) >>= \ch ->
+                        hashcons $ NFactor ch)
+  factor (FNot f) = N(unN (factor f) >>= \fh ->
+                      hashcons $ NNFactor fh)
+  factor (FExpr e) = N(unN (expr e) >>= \eh ->
+                       hashcons $ NFactor eh)
   var x    = N(hashcons $ NVar x)
-
--- instance Exp N where
---   constant x = N(hashcons $ NConst x)
---   variable x = N(hashcons $ NVar x)
---   add e1 e2  = N(do
---                  h1 <- unN e1
---                  h2 <- unN e2
---                  hashcons $ NAdd h1 h2)
+  const x  = N(hashcons $ NConst x)
 
 -- run the DAG-construction interpreter and the node,
 -- as a reference within a DAG.
-run_expN :: N t -> (NodeId, DAG)
-run_expN (N m) = runState m (DAG empty)
+run_expN :: N t -> DAG -> (NodeId, DAG)
+run_expN (N m) s = runState m s
 
--- We re-interpret exp_mul4 differently this time.
 -- The DAG-representation makes the sharing patent
 
 -- A DAG is printed as the list of |(NodeId,Node)| associations. The
 -- sharing of the left and right summands below is patent
-
--- test_sm8 = run_expN exp_mul8
--- (3,DAG BiMap[(0,NVar "i1"),(1,NAdd 0 0),(2,NAdd 1 1),(3,NAdd 2 2)])
-
--- test_n n = run_expN (mul n (variable "i"))
