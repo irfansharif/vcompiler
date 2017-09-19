@@ -19,6 +19,6 @@ executable lab-seven
   main-is:             Main.hs
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.9 && <4.10, mtl >=2.2 && <2.3, haskeline >=0.7 && <0.8, parsec >=3.1 && <3.2, pretty >=1.1 && <1.2
+  build-depends:       base >=4.9 && <4.10, mtl >=2.2 && <2.3, haskeline >=0.7 && <0.8, parsec >=3.1 && <3.2, pretty >=1.1 && <1.2, containers
   -- hs-source-dirs:
   default-language:    Haskell2010
